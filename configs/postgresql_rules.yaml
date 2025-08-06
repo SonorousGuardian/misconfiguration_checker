@@ -1,0 +1,29 @@
+- id: postgres-001
+  name: "Listen address open to all"
+  match: "listen_addresses = '*'"
+  description: "PostgreSQL is accessible from all IPs. Should be restricted."
+  severity: "critical"
+
+- id: postgres-002
+  name: "Trust authentication used"
+  match: "host all all 0.0.0.0/0 trust"
+  description: "Trust authentication allows login without password. Dangerous for remote access."
+  severity: "critical"
+
+- id: postgres-003
+  name: "SSL disabled"
+  match: "ssl = off"
+  description: "Without SSL, credentials and data can be intercepted."
+  severity: "high"
+
+- id: postgres-004
+  name: "Logging collector disabled"
+  match: "logging_collector = off"
+  description: "Disabling logging hinders audit and troubleshooting."
+  severity: "medium"
+
+- id: postgres-005
+  name: "Log connections disabled"
+  match: "log_connections = off"
+  description: "Connection logs are important to detect brute force or unauthorized access."
+  severity: "medium"

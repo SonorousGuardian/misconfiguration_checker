@@ -1,0 +1,35 @@
+- id: smb-001
+  name: "Anonymous access is enabled"
+  match: "guest ok = yes"
+  description: "Allows users to access shares without authentication. High risk of data leakage."
+  severity: "critical"
+
+- id: smb-002
+  name: "Null passwords are allowed"
+  match: "null passwords = yes"
+  description: "Permits logins with blank passwords, creating a major security hole."
+  severity: "critical"
+
+- id: smb-003
+  name: "SMBv1 is enabled"
+  match: "server min protocol = NT1"
+  description: "Enabling SMBv1 exposes system to known vulnerabilities like EternalBlue."
+  severity: "high"
+
+- id: smb-004
+  name: "Wide open share permissions"
+  match: "read only = no"
+  description: "Users may write to shared folders, which can be abused for malware spread or tampering."
+  severity: "high"
+
+- id: smb-005
+  name: "Logon auditing not enabled"
+  match: "log level = 0"
+  description: "No logging makes it difficult to audit or detect malicious activity."
+  severity: "medium"
+
+- id: smb-006
+  name: "Share browsing is not restricted"
+  match: "browseable = yes"
+  description: "Publicly browsable shares expose available resources and may assist attackers."
+  severity: "medium"

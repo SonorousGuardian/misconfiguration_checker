@@ -1,0 +1,29 @@
+- id: snmp-001
+  name: "Default community string 'public' in use"
+  match: "rocommunity public"
+  description: "The default 'public' community string is widely known and easily abused."
+  severity: "critical"
+
+- id: snmp-002
+  name: "Write community string enabled"
+  match: "rwcommunity"
+  description: "Write access allows attackers to modify SNMP data or configurations."
+  severity: "critical"
+
+- id: snmp-003
+  name: "SNMP version 1 or 2c used"
+  match: "com2sec.*(public|private)"
+  description: "Older SNMP versions transmit data in plaintext, making them insecure."
+  severity: "high"
+
+- id: snmp-004
+  name: "Access control not restricted"
+  match: "access .* any"
+  description: "Access from any source is risky; restrict to known hosts only."
+  severity: "high"
+
+- id: snmp-005
+  name: "Logging is not enabled"
+  match: "dontLogTCPWrappersConnects yes"
+  description: "Without logging, it's harder to detect unauthorized SNMP usage."
+  severity: "medium"

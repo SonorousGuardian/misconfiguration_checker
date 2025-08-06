@@ -1,0 +1,29 @@
+- id: dns-001
+  name: "Open recursive resolver"
+  match: "recursion yes"
+  description: "Allows DNS recursion for any host, enabling DNS amplification attacks."
+  severity: "critical"
+
+- id: dns-002
+  name: "Zone transfers allowed to any host"
+  match: "allow-transfer { any; }"
+  description: "Permits zone transfers without restriction, potentially exposing internal DNS data."
+  severity: "high"
+
+- id: dns-003
+  name: "No DNS query logging"
+  match: "querylog no"
+  description: "Without query logging, DNS activity can't be audited or monitored for anomalies."
+  severity: "medium"
+
+- id: dns-004
+  name: "Root hints not updated"
+  match: "root-hints"
+  description: "Outdated root hints can affect resolution reliability and open up spoofing risks."
+  severity: "low"
+
+- id: dns-005
+  name: "DNSSEC not enabled"
+  match: "dnssec-enable no"
+  description: "Without DNSSEC, responses can be spoofed or poisoned."
+  severity: "high"

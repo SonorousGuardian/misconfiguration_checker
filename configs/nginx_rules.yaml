@@ -1,0 +1,35 @@
+- id: nginx-001
+  name: "Server tokens exposed"
+  match: "server_tokens on"
+  description: "Reveals NGINX version info in error pages and headers, aiding attackers."
+  severity: "medium"
+
+- id: nginx-002
+  name: "Autoindex enabled"
+  match: "autoindex on"
+  description: "Allows directory listing, exposing sensitive files to unauthorized users."
+  severity: "high"
+
+- id: nginx-003
+  name: "SSL not enforced"
+  match: "listen 80"
+  description: "HTTP traffic is not redirected to HTTPS, risking unencrypted data transfer."
+  severity: "high"
+
+- id: nginx-004
+  name: "No rate limiting configured"
+  match: "limit_req_zone.*$"
+  description: "Missing request rate limiting allows brute-force or DoS attacks."
+  severity: "medium"
+
+- id: nginx-005
+  name: "Clickjacking protection missing"
+  match: "add_header X-Frame-Options"
+  description: "Lack of X-Frame-Options header makes the site vulnerable to clickjacking."
+  severity: "medium"
+
+- id: nginx-006
+  name: "Content Security Policy not set"
+  match: "add_header Content-Security-Policy"
+  description: "Without CSP, attackers can inject scripts more easily (XSS risk)."
+  severity: "medium"

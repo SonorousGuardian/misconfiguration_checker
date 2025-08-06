@@ -1,0 +1,29 @@
+- id: mongo-001
+  name: "MongoDB open to all IPs"
+  match: "bindIp: 0.0.0.0"
+  description: "Exposes MongoDB to the internet. Often exploited if auth is disabled."
+  severity: "critical"
+
+- id: mongo-002
+  name: "Authentication not enabled"
+  match: "authorization: disabled"
+  description: "Anyone can access and modify the database without credentials."
+  severity: "critical"
+
+- id: mongo-003
+  name: "No TLS encryption"
+  match: "ssl.enabled: false"
+  description: "Plaintext connections allow sniffing sensitive data."
+  severity: "high"
+
+- id: mongo-004
+  name: "No audit logging"
+  match: "auditLog.enabled: false"
+  description: "Activity is not tracked, making investigation and compliance difficult."
+  severity: "medium"
+
+- id: mongo-005
+  name: "Default port unchanged"
+  match: "port: 27017"
+  description: "Default port is easily targeted in scans. Consider changing it."
+  severity: "low"
