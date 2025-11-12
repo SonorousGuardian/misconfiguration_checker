@@ -10,7 +10,7 @@ def check_rules(config_text,rules):
             continue
 
         try:
-            if re.serach(pattern,config_text,re.IGNORECASE):
+            if re.search(pattern,config_text,re.IGNORECASE):
                 matched_rules.append({
                     "id":rule["id"],
                     "name":rule["name"],
@@ -20,5 +20,6 @@ def check_rules(config_text,rules):
 
         except re.error as e:
             print(f"f[!] Invalid regex in rule {rule.get('id')}:{e}")
+
 
     return matched_rules
