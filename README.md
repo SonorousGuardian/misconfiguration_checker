@@ -1,87 +1,120 @@
-Misconfiguration Checker
+# GRC Compliance & Misconfiguration Scanner
 
-A modular and extensible misconfiguration scanner for detecting insecure settings in popular infrastructure services. Built for system administrators, DevSecOps teams, and security auditors, this tool uses YAML-based rules to identify unsafe defaults and insecure configurations across various common services.
+Overview
 
-Features
+A modular Compliance-as-Code framework designed to automate security auditing for Linux infrastructure. Unlike static scanners, this tool maps technical misconfigurations directly to NIST 800-53, CIS Benchmarks, and ISO 27001 controls.
 
-🔍 Rule-based detection using YAML configuration
+It decouples validation logic (Python) from security policies (YAML), allowing GRC teams to update audit criteria without modifying the codebase.
 
-🧩 Modular architecture per service
+ Key Features
 
-📜 Human-readable JSON and HTML reports
+Framework Mapping: Every check is tagged with relevant compliance controls (e.g., NIST AC-6, CIS 5.2).
 
-🎨 Color-coded terminal output by severity
+Modular Architecture: Service-agnostic engine; supports SSH, NGINX, MySQL, Docker, and more via simple YAML plugins.
 
-🔧 CLI interface for selecting services or scanning all
+Executive Reporting: Generates professional HTML dashboards using Jinja2 for audit evidence.
 
-📂 Project Structure
+DevSecOps Ready: Fully containerized with Docker for consistent scanning across environments.
 
-misconfig_checker/
-├── configs/               # YAML rule definitions for each service
-├── core/                  # Core logic for rule engine, reporting
-├── modules/               # Individual service scanners
-├── reports/               # Output folder for reports
-├── main.py                # Entry-point CLI
-├── requirements.txt       # Python dependencies
-└── README.md              # Project overview
+ Architecture
 
-✅ Supported Services
+The system uses a "Rule Engine" pattern to separate logic from policy:
 
-SSH
+graph LR
+    A[YAML Configs] -->|Rules & Standards| B(Audit Engine)
+    B -->|Execute System Commands| C{Host System}
+    C -->|Return Shell Output| B
+    B -->|Process Compliance Data| D[Jinja2 Reporter]
+    D -->|Generate| E[HTML Audit Report]
 
-FTP
 
-Apache
+🛠️ Installation & Usage
 
-Nginx
+Method 1: Python (Local)
 
-MySQL
+Clone the repository:
 
-SMB (Samba)
+git clone [https://github.com/SonorousGuardian/misconfiguration_checker.git](https://github.com/SonorousGuardian/misconfiguration_checker.git)
+cd misconfiguration_checker
 
-DNS
-
-SNMP
-
-🚀 Usage
-
-Run scan for specific services:
-
-python main.py -s ssh ftp mysql
-
-Scan all services:
-
-python main.py --all
-
-Custom output paths:
-
-python main.py --all -j reports/output.json -H reports/output.html
-
-📋 Output
-
-Console: Color-coded summary with severity (Low/Medium/High/Critical)
-
-JSON: Structured machine-readable output (reports/report.json)
-
-HTML: Styled and color-coded HTML report (reports/report.html)
-
-🛠 Requirements
 
 Install dependencies:
 
 pip install -r requirements.txt
 
-🧱 Add Your Own Rules
+## Run a scan:
 
-Create a YAML file under configs/
+# Scan specific services
+python main.py --services ssh nginx mysql
 
-Follow this format:
+# Scan all configured services (if supported by shell expansion)
+python main.py --services ssh ftp dns mysql redis
 
-- id: ssh-001
-  name: "Root login is enabled"
-  match: "PermitRootLogin yes"
-  description: "Allows root user to login over SSH."
-  severity: "high"
 
-Add a corresponding checker in modules/
+Method 2: Docker (Containerized)
 
+This tool is container-ready to ensure isolation.
+
+# Build the image
+docker build -t grc-scanner .
+
+# Run the scanner 
+# (Note: We mount the host /etc config to scan the actual system configuration)
+docker run -v /etc:/etc:ro -v $(pwd)/reports:/app/reports grc-scanner
+
+
+📊 Sample Output
+
+The tool generates an interactive audit_report.html file in the root directory.
+
+Control ID
+
+Severity
+
+Compliance
+
+Status
+
+Check Details
+
+SSH-001
+
+CRITICAL
+
+NIST AC-6
+
+<span style="color:green">PASS</span>
+
+PermitRootLogin no
+
+SSH-002
+
+HIGH
+
+CIS 5.2
+
+<span style="color:red">FAIL</span>
+
+PasswordAuthentication no
+
+🧩 Adding New Rules
+
+Rules are defined in configs/service_name.yaml. You do not need to write Python code to add a check.
+
+Example: Adding a check for Python version
+
+- id: "SYS-001"
+  name: "Check Python Version"
+  description: "Ensure Python 3 is installed."
+  command: "python3 --version"
+  expected: "Python 3"
+  severity: "LOW"
+  compliance:
+    nist: "SI-2"
+
+
+⚠️ Disclaimer
+
+This tool executes system commands (grep, stat, etc.) to verify configurations. While it is designed to be read-only, it should always be run with appropriate permissions and authorization on systems you own or are authorized to audit.
+
+Built by Amritesh Shrivastava
