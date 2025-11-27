@@ -1,4 +1,6 @@
 import argparse
+import os
+import sys
 from core.engine import AuditEngine
 from core.reporter import HTMLReporter
 
@@ -23,15 +25,27 @@ def main():
 
     args = parser.parse_args()
 
-    # 2. Initialize the Engine
-    engine = AuditEngine(config_dir="configs")
+    # --- FIX START ---
+    # Get the absolute path of the directory where main.py is located
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Construct the absolute path to the configs folder
+    config_path = os.path.join(base_dir, "configs")
+    template_path = os.path.join(base_dir, "templates")
+
+    print(f"[*] Debug: Looking for configs in: {config_path}")
+    # --- FIX END ---
+
+    # 2. Initialize the Engine with the absolute path
+    engine = AuditEngine(config_dir=config_path)
     
     # 3. Run the Audit
     scan_results = engine.run_audit(args.services)
 
     # 4. Generate the Report
     if scan_results:
-        reporter = HTMLReporter(template_dir="templates")
+        # Pass the absolute template path to reporter
+        reporter = HTMLReporter(template_dir=template_path)
         reporter.generate(scan_results, output_file=args.output)
     else:
         print("[-] No results to report.")
