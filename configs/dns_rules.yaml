@@ -1,0 +1,54 @@
+rules:
+  - id: "DNS-001"
+    name: "Disable Recursion (Public)"
+    description: "Recursion should be disabled on public servers to prevent DNS Amplification DDoS attacks."
+    command: "grep 'recursion' /etc/bind/named.conf.options"
+    expected: "recursion no"
+    severity: "CRITICAL"
+    compliance:
+      cis: "3.2"
+      nist: "SC-7"       # Boundary Protection
+      iso: "A.13.1.3"    # Segregation in networks
+
+  - id: "DNS-002"
+    name: "Restrict Zone Transfers"
+    description: "Zone transfers allow attackers to map your entire network. Restrict them to specific secondaries or disable them."
+    command: "grep 'allow-transfer' /etc/bind/named.conf.options"
+    expected: "allow-transfer { none; };"
+    severity: "HIGH"
+    compliance:
+      cis: "3.3"
+      nist: "AC-4"       # Information Flow Enforcement
+      owasp: "A01:2021"
+
+  - id: "DNS-003"
+    name: "Enable Query Logging"
+    description: "DNS query logs are essential for detecting C2 (Command & Control) beacons and tunneling."
+    # Logic: Check if logging channel is defined
+    command: "grep -q 'channel query_log' /etc/bind/named.conf.options && echo 'ENABLED' || echo 'DISABLED'"
+    expected: "ENABLED"
+    severity: "MEDIUM"
+    compliance:
+      nist: "AU-2"       # Event Logging
+      cis: "3.5"
+
+  - id: "DNS-004"
+    name: "Hide BIND Version"
+    description: "Prevent attackers from fingerprinting the server version to find specific exploits."
+    command: "grep 'version' /etc/bind/named.conf.options"
+    expected: "version none"
+    severity: "LOW"
+    compliance:
+      nist: "SI-11"      # Error Handling / Information Leakage
+      cis: "2.1"
+
+  - id: "DNS-005"
+    name: "Enable DNSSEC Validation"
+    description: "DNSSEC ensures the integrity of DNS responses and prevents cache poisoning."
+    command: "grep 'dnssec-validation' /etc/bind/named.conf.options"
+    expected: "dnssec-validation auto"
+    severity: "HIGH"
+    compliance:
+      cis: "3.4"
+      nist: "SC-8"       # Transmission Confidentiality (Integrity)
+      iso: "A.10.1.1"

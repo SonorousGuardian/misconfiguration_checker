@@ -1,0 +1,76 @@
+rules:
+  - id: "APACHE-001"
+    name: "Hide Server Signature"
+    description: "ServerSignature reveals version information on error pages. It must be disabled."
+    # We search recursively (-r) because this config could be in security.conf or apache2.conf
+    command: "grep -r '^ServerSignature' /etc/apache2/"
+    expected: "ServerSignature Off"
+    severity: "MEDIUM"
+    compliance:
+      cis: "2.4"
+      nist: "SI-11"      # Error Handling
+      owasp: "A06:2021"  # Vulnerable Components
+
+  - id: "APACHE-002"
+    name: "Minimize Server Tokens"
+    description: "ServerTokens should be set to 'Prod' to hide OS and Module versions in headers."
+    command: "grep -r '^ServerTokens' /etc/apache2/"
+    expected: "ServerTokens Prod"
+    severity: "MEDIUM"
+    compliance:
+      cis: "2.4"
+      nist: "SI-11"      # Information Leakage
+
+  - id: "APACHE-003"
+    name: "Disable Directory Listing"
+    description: "Directory listing allows attackers to map your file structure. Use -Indexes."
+    command: "grep -r 'Options' /etc/apache2/sites-enabled/"
+    expected: "-Indexes"
+    severity: "HIGH"
+    compliance:
+      cis: "2.5"
+      nist: "CM-7"       # Least Functionality
+      owasp: "A01:2021"  # Broken Access Control
+
+  - id: "APACHE-004"
+    name: "Enforce SSL/TLS"
+    description: "Ensure that an active VirtualHost has the SSLEngine turned on."
+    command: "grep -r 'SSLEngine' /etc/apache2/sites-enabled/"
+    expected: "SSLEngine on"
+    severity: "CRITICAL"
+    compliance:
+      cis: "2.3"
+      nist: "SC-8"       # Transmission Confidentiality
+      iso: "A.10.1.1"
+
+  - id: "APACHE-005"
+    name: "Disable HTTP Trace"
+    description: "TraceEnable allows Cross-Site Tracing (XST) attacks."
+    command: "grep -r '^TraceEnable' /etc/apache2/"
+    expected: "TraceEnable Off"
+    severity: "HIGH"
+    compliance:
+      nist: "CM-7"       # Least Functionality
+      owasp: "A01:2021"
+
+  - id: "APACHE-006"
+    name: "Prevent Clickjacking"
+    description: "X-Frame-Options header must be set to SAMEORIGIN."
+    command: "grep -r 'X-Frame-Options' /etc/apache2/"
+    expected: "SAMEORIGIN"
+    severity: "MEDIUM"
+    compliance:
+      nist: "SC-8"       # Boundary Protection
+      owasp: "A04:2021"  # Insecure Design
+
+  - id: "APACHE-007"
+    name: "Disable Weak SSL Protocols"
+    description: "SSLProtocol should disable SSLv2, SSLv3, and TLSv1."
+    # Logic: We explicitly look for the disabling flag '-SSLv3'
+    command: "grep -r 'SSLProtocol' /etc/apache2/"
+    expected: "-SSLv3"
+    severity: "CRITICAL"
+    compliance:
+      cis: "2.3"
+      nist: "SI-16"      # Flawed or Malformed Input (Protocol Security)
+      pci: "4.1"

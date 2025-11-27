@@ -1,0 +1,54 @@
+rules:
+  - id: "PG-001"
+    name: "Restrict Listen Addresses"
+    description: "Postgres should only listen on localhost unless explicitly needed for external access."
+    command: "grep '^listen_addresses' /etc/postgresql/13/main/postgresql.conf"
+    expected: "listen_addresses = 'localhost'"
+    severity: "CRITICAL"
+    compliance:
+      cis: "3.1"
+      nist: "AC-4"       # Information Flow Enforcement
+      iso: "A.13.1.1"
+
+  - id: "PG-002"
+    name: "Secure Authentication Method"
+    description: "Authentication must not use 'trust' for remote connections. Use 'scram-sha-256' or 'md5'."
+    # Logic: If we find a line allowing 0.0.0.0/0 with 'trust', it is UNSAFE. Otherwise, SECURE.
+    command: "grep -q 'host.*0.0.0.0/0.*trust' /etc/postgresql/13/main/pg_hba.conf && echo 'UNSAFE' || echo 'SECURE'"
+    expected: "SECURE"
+    severity: "CRITICAL"
+    compliance:
+      cis: "4.2"
+      nist: "IA-5"       # Authenticator Management
+      pci: "8.2"
+
+  - id: "PG-003"
+    name: "Enable SSL"
+    description: "SSL must be enabled to encrypt data in transit and credentials."
+    command: "grep '^ssl' /etc/postgresql/13/main/postgresql.conf"
+    expected: "ssl = on"
+    severity: "HIGH"
+    compliance:
+      cis: "3.2"
+      nist: "SC-8"       # Transmission Confidentiality
+      iso: "A.10.1.1"
+
+  - id: "PG-004"
+    name: "Enable Logging Collector"
+    description: "The logging collector captures audit logs required for forensic analysis."
+    command: "grep '^logging_collector' /etc/postgresql/13/main/postgresql.conf"
+    expected: "logging_collector = on"
+    severity: "MEDIUM"
+    compliance:
+      cis: "4.4"
+      nist: "AU-2"       # Event Logging
+
+  - id: "PG-005"
+    name: "Log Connection Attempts"
+    description: "Logging connection attempts (successful and failed) helps detect brute-force attacks."
+    command: "grep '^log_connections' /etc/postgresql/13/main/postgresql.conf"
+    expected: "log_connections = on"
+    severity: "MEDIUM"
+    compliance:
+      cis: "4.5"
+      nist: "AU-6"       # Audit Review, Analysis, and Reporting

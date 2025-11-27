@@ -1,0 +1,54 @@
+rules:
+  - id: "MYSQL-001"
+    name: "Bind to Localhost"
+    description: "MySQL should not listen on 0.0.0.0. It must be restricted to 127.0.0.1 to prevent remote attacks."
+    command: "grep '^bind-address' /etc/mysql/my.cnf"
+    expected: "bind-address = 127.0.0.1"
+    severity: "CRITICAL"
+    compliance:
+      cis: "4.3"
+      nist: "AC-4"       # Information Flow Enforcement
+      iso: "A.13.1.1"
+
+  - id: "MYSQL-002"
+    name: "Disable Local Infile"
+    description: "Prevents arbitrary file reading (e.g., /etc/passwd) via SQL Injection."
+    command: "grep 'local-infile' /etc/mysql/my.cnf"
+    expected: "local-infile=0"
+    severity: "CRITICAL"
+    compliance:
+      cis: "4.4"
+      nist: "AC-6"       # Least Privilege
+      owasp: "A01:2021"
+
+  - id: "MYSQL-003"
+    name: "Ensure Error Logging"
+    description: "Ensure the error log is set to capture critical database issues."
+    # Logic: Check if log_error is defined.
+    command: "grep -q '^log_error' /etc/mysql/my.cnf && echo 'ENABLED' || echo 'DISABLED'"
+    expected: "ENABLED"
+    severity: "MEDIUM"
+    compliance:
+      cis: "5.1"
+      nist: "AU-2"       # Event Logging
+
+  - id: "MYSQL-004"
+    name: "Require Secure Transport (SSL)"
+    description: "Force all client connections to use SSL/TLS."
+    command: "grep 'require_secure_transport' /etc/mysql/my.cnf"
+    expected: "require_secure_transport = ON"
+    severity: "HIGH"
+    compliance:
+      cis: "6.1"
+      nist: "SC-8"       # Transmission Confidentiality
+      iso: "A.10.1.1"
+
+  - id: "MYSQL-005"
+    name: "Enable Slow Query Log"
+    description: "Log queries that take longer than expected to aid in performance auditing."
+    command: "grep 'slow_query_log' /etc/mysql/my.cnf"
+    expected: "slow_query_log = 1"
+    severity: "LOW"
+    compliance:
+      nist: "AU-6"       # Audit Review, Analysis, and Reporting
+      cis: "5.3"
