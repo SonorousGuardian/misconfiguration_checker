@@ -1,7 +1,6 @@
 # 🛡️ GRC Compliance & Misconfiguration Scanner
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 ![Compliance](https://img.shields.io/badge/Compliance-NIST%20%7C%20ISO27001%20%7C%20CIS-orange?style=for-the-badge)
 
 ## 📋 Overview
