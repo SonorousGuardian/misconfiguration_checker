@@ -1,103 +1,50 @@
-# GRC Compliance & Misconfiguration Scanner
+# 🛡️ GRC Compliance & Misconfiguration Scanner
 
-## Overview
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Compliance](https://img.shields.io/badge/Compliance-NIST%20%7C%20ISO27001%20%7C%20CIS-orange?style=for-the-badge)
 
-A modular Compliance-as-Code framework mapping Linux misconfigurations directly to NIST 800-53, CIS Benchmarks, and ISO 27001 controls. It decouples validation logic (Python) from security policies (YAML), allowing GRC teams to update audit criteria without code changes.
+## 📋 Overview
 
-## Key Features
+The **GRC Compliance & Misconfiguration Scanner** is a modular **Compliance-as-Code** framework designed to bridge the gap between DevOps and GRC. It automates the validation of Linux server security postures by mapping system configurations directly to industry standards:
+* **NIST 800-53**
+* **CIS Benchmarks**
+* **ISO 27001**
 
-Framework Mapping: Checks are tagged with controls (e.g., NIST AC-6, CIS 5.2).
+By decoupling validation logic (Python) from security policies (YAML), this tool allows GRC teams to define audit criteria without needing to modify the core codebase.
 
-Modular Architecture: Service-agnostic engine supports SSH, NGINX, MySQL, etc. via YAML.
+---
 
-Executive Reporting: Generates professional HTML dashboards using Jinja2.
+## 📸 Screenshots
 
-## Architecture
+### 1. Executive HTML Dashboard
+The tool generates a professional, audit-ready HTML report for stakeholders.
+![HTML Report Dashboard](assets/dashboard_preview.png)
+*(Note: If image does not load, run the tool to generate `audit_report.html`)*
 
-The system uses a "Rule Engine" pattern to separate logic from policy:
+### 2. Terminal Execution
+Real-time feedback during the scanning process.
+![Terminal Output](assets/terminal_preview.png)
 
+---
+
+## ✨ Key Features
+
+* **Policy-to-Control Mapping:** Every check is explicitly tagged with GRC controls (e.g., `NIST AC-6`, `CIS 5.2`) for easier audit tracking.
+* **Service-Agnostic Engine:** Modular architecture supports checking configurations for **SSH, NGINX, MySQL, FTP, Redis**, and more.
+* **YAML-Based Configuration:** Rules are defined in simple YAML files, making it easy to add new checks (Low-Code/No-Code approach for policy makers).
+* **Automated Reporting:** Uses Jinja2 templating to produce high-quality HTML deliverables.
+
+---
+
+## 🏗️ Architecture
+
+The system utilizes a **Rule Engine** pattern to separate business logic from policy definitions.
+
+```mermaid
 graph LR
     A[YAML Configs] -->|Rules & Standards| B(Audit Engine)
     B -->|Execute System Commands| C{Host System}
     C -->|Return Shell Output| B
     B -->|Process Compliance Data| D[Jinja2 Reporter]
     D -->|Generate| E[HTML Audit Report]
-
-
-## Installation & Usage
-
-Clone the repository:
-
-git clone [https://github.com/SonorousGuardian/misconfiguration_checker.git](https://github.com/SonorousGuardian/misconfiguration_checker.git)
-cd misconfiguration_checker
-
-
-Install dependencies:
-
-pip install -r requirements.txt
-
-
-Run a scan:
-
-# Scan specific services
-python main.py --services ssh nginx mysql
-
-# Scan all configured services
-python main.py --services ssh ftp dns mysql redis
-
-
-📊 Sample Output
-
-The tool generates an interactive audit_report.html file in the root directory.
-
-Control ID
-
-Severity
-
-Compliance
-
-Status
-
-Check Details
-
-SSH-001
-
-CRITICAL
-
-NIST AC-6
-
-<span style="color:green">PASS</span>
-
-PermitRootLogin no
-
-SSH-002
-
-HIGH
-
-CIS 5.2
-
-<span style="color:red">FAIL</span>
-
-PasswordAuthentication no
-
-🧩 Adding New Rules
-
-Rules are defined in configs/service_name.yaml. No coding required.
-
-Example:
-
-- id: "SYS-001"
-  name: "Check Python Version"
-  description: "Ensure Python 3 is installed."
-  command: "python3 --version"
-  expected: "Python 3"
-  severity: "LOW"
-  compliance:
-    nist: "SI-2"
-
-
-⚠️ Disclaimer
-
-This tool executes system commands (grep, stat, etc.) to verify configurations. Ensure you have authorization to audit the target systems.
-
-Built by Amritesh Shrivastava
