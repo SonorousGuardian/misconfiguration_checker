@@ -10,11 +10,18 @@ def main():
         description="GRC Compliance Checker: Automated Audit Tool mapped to NIST/CIS"
     )
     
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group(required=True)
+    
+    group.add_argument(
         "-s", "--services", 
         nargs="+", 
-        default=["ssh", "nginx", "mysql"], 
         help="List of services to check (e.g. ssh nginx mysql)"
+    )
+    
+    group.add_argument(
+        "-a", "--all", 
+        action="store_true", 
+        help="Automatically scan ALL services found in the configs folder"
     )
     
     parser.add_argument(
@@ -25,26 +32,34 @@ def main():
 
     args = parser.parse_args()
 
-    # --- FIX START ---
-    # Get the absolute path of the directory where main.py is located
+    # 2. Path Setup (Robust Fix)
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # Construct the absolute path to the configs folder
     config_path = os.path.join(base_dir, "configs")
     template_path = os.path.join(base_dir, "templates")
 
-    print(f"[*] Debug: Looking for configs in: {config_path}")
-    # --- FIX END ---
+    # 3. Handle "--all" Logic
+    services_to_scan = []
 
-    # 2. Initialize the Engine with the absolute path
+    if args.all:
+        if os.path.exists(config_path):
+            # List all .yaml files and remove the extension to get service names
+            files = [f for f in os.listdir(config_path) if f.endswith(".yaml")]
+            services_to_scan = [f.replace(".yaml", "") for f in files]
+            print(f"[*] Auto-detected {len(services_to_scan)} services: {', '.join(services_to_scan)}")
+        else:
+            print(f"[-] Error: Config directory not found at {config_path}")
+            sys.exit(1)
+    else:
+        services_to_scan = args.services
+
+    # 4. Initialize Engine
     engine = AuditEngine(config_dir=config_path)
     
-    # 3. Run the Audit
-    scan_results = engine.run_audit(args.services)
+    # 5. Run Audit
+    scan_results = engine.run_audit(services_to_scan)
 
-    # 4. Generate the Report
+    # 6. Generate Report
     if scan_results:
-        # Pass the absolute template path to reporter
         reporter = HTMLReporter(template_dir=template_path)
         reporter.generate(scan_results, output_file=args.output)
     else:
@@ -52,3 +67,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+
+### 🚀 How to use it
+
+**Scan everything (The new way):**
+```bash
+python main.py --all
+```
+
+**Scan specific services (The old way):**
+```bash
+python main.py --services ssh nginx
