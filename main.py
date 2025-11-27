@@ -67,15 +67,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
-
-### 🚀 How to use it
-
-**Scan everything (The new way):**
-```bash
-python main.py --all
-```
-
-**Scan specific services (The old way):**
-```bash
-python main.py --services ssh nginx
