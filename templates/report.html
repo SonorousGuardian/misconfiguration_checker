@@ -4,75 +4,186 @@
     <meta charset="UTF-8">
     <title>GRC Compliance Audit Report</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f4f6f9; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --bg: #f4f6f9;
+            --white: #ffffff;
+            --pass: #27ae60;
+            --fail: #c0392b;
+            --warning: #f39c12;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: var(--bg); color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--white); padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-        h1 { color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
-        .summary { display: flex; gap: 20px; margin-bottom: 30px; }
-        .card { flex: 1; padding: 15px; border-radius: 5px; color: white; text-align: center; }
-        .bg-total { background-color: #3498db; }
-        .bg-pass { background-color: #27ae60; }
-        .bg-fail { background-color: #c0392b; }
+        /* Header */
+        header { border-bottom: 2px solid #ecf0f1; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { margin: 0; color: var(--primary); font-size: 24px; }
+        .meta { color: #7f8c8d; font-size: 0.9em; text-align: right; }
+
+        /* Heat Matrix Section */
+        .matrix-container { display: flex; gap: 30px; margin-bottom: 40px; }
+        .matrix-box { flex: 1; }
+        .matrix-title { font-weight: bold; margin-bottom: 10px; color: var(--secondary); text-transform: uppercase; font-size: 0.85em; letter-spacing: 1px; }
+
+        /* The Grid Table */
+        .matrix-table { width: 100%; border-collapse: separate; border-spacing: 4px; }
+        .matrix-table th { background: var(--secondary); color: white; padding: 10px; font-size: 0.9em; border-radius: 4px; }
+        .matrix-table td { padding: 15px; text-align: center; font-weight: bold; border-radius: 4px; color: white; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px 15px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background-color: #34495e; color: white; }
-        
-        .status-PASS { color: #27ae60; font-weight: bold; }
-        .status-FAIL { color: #c0392b; font-weight: bold; }
-        
-        .badge { display: inline-block; padding: 3px 8px; font-size: 0.8em; border-radius: 4px; background: #eee; margin-right: 5px; border: 1px solid #ccc; }
-        .badge-nist { background-color: #e8f6f3; color: #1abc9c; border-color: #1abc9c; }
-        .badge-cis { background-color: #fef9e7; color: #f1c40f; border-color: #f1c40f; }
+        /* Matrix Colors */
+        .cell-crit-fail { background-color: #7b1fa2; } /* Deep Purple for Critical Fail */
+        .cell-high-fail { background-color: #c0392b; }
+        .cell-med-fail  { background-color: #e67e22; }
+        .cell-low-fail  { background-color: #f1c40f; color: #333 !important; }
+        .cell-pass      { background-color: #27ae60; opacity: 0.8; }
+        .cell-label     { background-color: #ecf0f1; color: #333 !important; text-align: left !important; padding-left: 15px !important; }
+
+        /* Detailed Results Table */
+        .details-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.95em; }
+        .details-table th { background-color: var(--secondary); color: white; padding: 12px 15px; text-align: left; }
+        .details-table td { padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: top; }
+        .details-table tr:hover { background-color: #f8f9fa; }
+
+        /* Status Badges */
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; }
+        .status-PASS { background-color: #d4edda; color: #155724; }
+        .status-FAIL { background-color: #f8d7da; color: #721c24; }
+        .status-ERROR { background-color: #fff3cd; color: #856404; }
+
+        /* Compliance Badges */
+        .comp-badge { display: inline-block; padding: 2px 6px; font-size: 0.75em; border-radius: 3px; background: #eee; margin-right: 4px; margin-bottom: 4px; border: 1px solid #ccc; font-family: monospace; }
+        .comp-cis { background: #e3f2fd; color: #0d47a1; border-color: #90caf9; }
+        .comp-nist { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
+        .comp-iso { background: #fff3e0; color: #e65100; border-color: #ffcc80; }
+        .comp-pci { background: #f3e5f5; color: #4a148c; border-color: #ce93d8; }
+
+        /* Toggle Details */
+        .check-meta { font-size: 0.85em; color: #666; margin-top: 4px; }
+        .cmd-block { background: #2d3436; color: #dfe6e9; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 0.85em; margin-top: 5px; display: block; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🛡️ Automated Compliance Audit Report</h1>
-        <p><strong>Scan Date:</strong> {{ scan_date }}</p>
+        <header>
+            <div>
+                <h1>🛡️ Security & Compliance Audit Report</h1>
+                <div style="margin-top: 5px; color: #7f8c8d;">Automated Configuration Assessment</div>
+            </div>
+            <div class="meta">
+                <strong>Scan Date:</strong> {{ scan_date }}<br>
+                <strong>Total Checks:</strong> {{ stats.total }}
+            </div>
+        </header>
 
-        <div class="summary">
-            <div class="card bg-total">
-                <h3>Total Checks</h3>
-                <h2>{{ stats.total }}</h2>
+        <!-- Jinja2 Logic to Calculate Matrix Stats -->
+        {% set crit_fail = results | selectattr('severity', 'equalto', 'CRITICAL') | selectattr('status', 'equalto', 'FAIL') | list | length %}
+        {% set high_fail = results | selectattr('severity', 'equalto', 'HIGH') | selectattr('status', 'equalto', 'FAIL') | list | length %}
+        {% set med_fail  = results | selectattr('severity', 'equalto', 'MEDIUM') | selectattr('status', 'equalto', 'FAIL') | list | length %}
+        {% set low_fail  = results | selectattr('severity', 'equalto', 'LOW') | selectattr('status', 'equalto', 'FAIL') | list | length %}
+        
+        {% set crit_pass = results | selectattr('severity', 'equalto', 'CRITICAL') | selectattr('status', 'equalto', 'PASS') | list | length %}
+        {% set high_pass = results | selectattr('severity', 'equalto', 'HIGH') | selectattr('status', 'equalto', 'PASS') | list | length %}
+        {% set med_pass  = results | selectattr('severity', 'equalto', 'MEDIUM') | selectattr('status', 'equalto', 'PASS') | list | length %}
+        {% set low_pass  = results | selectattr('severity', 'equalto', 'LOW') | selectattr('status', 'equalto', 'PASS') | list | length %}
+
+        <!-- RISK MATRIX -->
+        <div class="matrix-container">
+            <div class="matrix-box">
+                <div class="matrix-title">Risk Heat Matrix</div>
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Severity</th>
+                            <th style="width: 40%;">Pass</th>
+                            <th style="width: 40%;">Fail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="cell-label">CRITICAL</td>
+                            <td class="cell-pass" style="opacity: {{ 0.3 if crit_pass == 0 else 1 }}">{{ crit_pass }}</td>
+                            <td class="cell-crit-fail" style="opacity: {{ 0.3 if crit_fail == 0 else 1 }}">{{ crit_fail }}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-label">HIGH</td>
+                            <td class="cell-pass" style="opacity: {{ 0.3 if high_pass == 0 else 1 }}">{{ high_pass }}</td>
+                            <td class="cell-high-fail" style="opacity: {{ 0.3 if high_fail == 0 else 1 }}">{{ high_fail }}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-label">MEDIUM</td>
+                            <td class="cell-pass" style="opacity: {{ 0.3 if med_pass == 0 else 1 }}">{{ med_pass }}</td>
+                            <td class="cell-med-fail" style="opacity: {{ 0.3 if med_fail == 0 else 1 }}">{{ med_fail }}</td>
+                        </tr>
+                        <tr>
+                            <td class="cell-label">LOW</td>
+                            <td class="cell-pass" style="opacity: {{ 0.3 if low_pass == 0 else 1 }}">{{ low_pass }}</td>
+                            <td class="cell-low-fail" style="opacity: {{ 0.3 if low_fail == 0 else 1 }}">{{ low_fail }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="card bg-pass">
-                <h3>Passed</h3>
-                <h2>{{ stats.passed }}</h2>
-            </div>
-            <div class="card bg-fail">
-                <h3>Failed</h3>
-                <h2>{{ stats.failed }}</h2>
+            
+            <!-- Quick Summary Box -->
+            <div class="matrix-box" style="display: flex; flex-direction: column; justify-content: center; background: #f8f9fa; border-radius: 8px; padding: 20px; border: 1px solid #eee;">
+                <div class="matrix-title">Executive Summary</div>
+                <p style="font-size: 0.9em; line-height: 1.6;">
+                    This audit performed <strong>{{ stats.total }}</strong> checks. 
+                    <br><br>
+                    The system achieved a compliance score of 
+                    <strong style="color: {{ 'green' if stats.passed/stats.total > 0.8 else 'red' }}">
+                        {{ ((stats.passed / stats.total) * 100) | round(1) }}%
+                    </strong>.
+                    <br><br>
+                    <strong>Action Required:</strong> There are 
+                    <span style="color: white; background: #c0392b; padding: 2px 6px; border-radius: 4px;">{{ crit_fail + high_fail }} Critical/High</span> 
+                    failures that require immediate remediation.
+                </p>
             </div>
         </div>
 
-        <table>
+        <!-- DETAILED RESULTS -->
+        <div class="matrix-title">Detailed Audit Findings</div>
+        <table class="details-table">
             <thead>
                 <tr>
-                    <th>Control ID</th>
-                    <th>Name</th>
-                    <th>Compliance Mapping</th>
-                    <th>Status</th>
-                    <th>Audit Evidence</th>
+                    <th style="width: 10%">ID</th>
+                    <th style="width: 10%">Severity</th>
+                    <th style="width: 25%">Control Mapping</th>
+                    <th style="width: 30%">Check Details</th>
+                    <th style="width: 15%">Status</th>
+                    <th style="width: 10%">Evidence</th>
                 </tr>
             </thead>
             <tbody>
                 {% for check in results %}
                 <tr>
                     <td><strong>{{ check.id }}</strong></td>
-                    <td>{{ check.name }}</td>
                     <td>
-                        {% if check.compliance.nist %} 
-                            <span class="badge badge-nist">NIST {{ check.compliance.nist }}</span> 
-                        {% endif %}
-                        {% if check.compliance.cis %} 
-                            <span class="badge badge-cis">CIS {{ check.compliance.cis }}</span> 
+                        <span style="color: {{ 'red' if check.severity in ['CRITICAL', 'HIGH'] else 'orange' }}; font-weight: bold; font-size: 0.85em;">
+                            {{ check.severity }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if check.compliance %}
+                            {% for std, code in check.compliance.items() %}
+                                <span class="comp-badge comp-{{ std|lower }}">{{ std|upper }} {{ code }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span style="color: #999; font-size: 0.8em;">No mapping</span>
                         {% endif %}
                     </td>
-                    <td class="status-{{ check.status }}">{{ check.status }}</td>
                     <td>
-                        <small><strong>Expected:</strong> {{ check.expected }}</small><br>
-                        <small style="color: #666;"><strong>Actual:</strong> {{ check.actual }}</small>
+                        <div style="font-weight: 600; margin-bottom: 4px;">{{ check.name }}</div>
+                        <div style="font-size: 0.85em; color: #666;">{{ check.description }}</div>
+                    </td>
+                    <td><span class="status-badge status-{{ check.status }}">{{ check.status }}</span></td>
+                    <td>
+                        <div style="font-size: 0.8em;">
+                            <strong>Expected:</strong> {{ check.expected }}<br>
+                            <strong>Actual:</strong> <span style="font-family: monospace; background: #eee; padding: 1px 4px;">{{ check.actual }}</span>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
