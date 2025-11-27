@@ -18,7 +18,7 @@ By decoupling validation logic (Python) from security policies (YAML), this tool
 
 ### 1. Executive HTML Dashboard
 The tool generates a professional, audit-ready HTML report for stakeholders.
-![HTML Report Dashboard](assets/report.png)
+![HTML Report page](assets/report.png)
 *(Note: If image does not load, run the tool to generate `audit_report.html`)*
 
 ### 2. Terminal Execution
