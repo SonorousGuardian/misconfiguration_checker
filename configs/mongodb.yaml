@@ -1,0 +1,55 @@
+rules:
+  - id: "MONGO-001"
+    name: "Bind to Localhost"
+    description: "MongoDB should bind to 127.0.0.1. Binding to 0.0.0.0 exposes the DB to the entire internet."
+    command: "grep 'bindIp' /etc/mongod.conf"
+    expected: "bindIp: 127.0.0.1"
+    severity: "CRITICAL"
+    compliance:
+      cis: "1.1"
+      nist: "AC-4"       # Information Flow Enforcement
+      iso: "A.13.1.1"
+
+  - id: "MONGO-002"
+    name: "Enable Authentication"
+    description: "Security authorization must be enabled to prevent anonymous access."
+    command: "grep 'authorization' /etc/mongod.conf"
+    expected: "authorization: enabled"
+    severity: "CRITICAL"
+    compliance:
+      cis: "2.1"
+      nist: "IA-2"       # Identification and Authentication
+      pci: "8.2"
+
+  - id: "MONGO-003"
+    name: "Enforce TLS Encryption"
+    description: "Traffic must be encrypted. Use 'requireTLS' to reject unencrypted connections."
+    command: "grep 'mode' /etc/mongod.conf"
+    expected: "mode: requireTLS"
+    severity: "HIGH"
+    compliance:
+      cis: "3.1"
+      nist: "SC-8"       # Transmission Confidentiality
+      iso: "A.10.1.1"
+
+  - id: "MONGO-004"
+    name: "Enable Audit Logging"
+    description: "Audit logging tracks who did what. Essential for forensics."
+    # Logic: Check if the 'auditLog' block is defined
+    command: "grep -q 'auditLog:' /etc/mongod.conf && echo 'ENABLED' || echo 'DISABLED'"
+    expected: "ENABLED"
+    severity: "MEDIUM"
+    compliance:
+      cis: "4.1"
+      nist: "AU-2"       # Event Logging
+      owasp: "A09:2021"  # Logging Failures
+
+  - id: "MONGO-005"
+    name: "Use Non-Standard Port"
+    description: "Changing the default port (27017) reduces automated scan noise."
+    # Logic: If we find 'port: 27017', it is DEFAULT (Fail). Otherwise, CUSTOM (Pass).
+    command: "grep -q 'port: 27017' /etc/mongod.conf && echo 'DEFAULT' || echo 'CUSTOM'"
+    expected: "CUSTOM"
+    severity: "LOW"
+    compliance:
+      nist: "CM-7"       # Least Functionality

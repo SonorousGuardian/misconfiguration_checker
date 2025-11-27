@@ -1,0 +1,72 @@
+rules:
+  - id: "SSH-001"
+    name: "Disable Root Login"
+    description: "Root login should be disabled to prevent direct administrative access."
+    command: "grep '^PermitRootLogin' /etc/ssh/sshd_config"
+    expected: "PermitRootLogin no"
+    severity: "CRITICAL"
+    compliance:
+      cis: "5.2.10"
+      nist: "AC-6(2)"
+      iso: "A.9.2.3"
+
+  - id: "SSH-002"
+    name: "Disable Password Auth"
+    description: "Use SSH keys instead of passwords to prevent brute-force attacks."
+    command: "grep '^PasswordAuthentication' /etc/ssh/sshd_config"
+    expected: "PasswordAuthentication no"
+    severity: "HIGH"
+    compliance:
+      cis: "5.2.12"
+      nist: "IA-5(1)"
+
+  - id: "SSH-003"
+    name: "Use SSH Protocol 2"
+    description: "Protocol 1 is insecure and obsolete. Only use Protocol 2."
+    command: "grep '^Protocol' /etc/ssh/sshd_config"
+    expected: "Protocol 2"
+    severity: "HIGH"
+    compliance:
+      cis: "5.2.2"
+      nist: "IA-5(1)"
+
+  - id: "SSH-004"
+    name: "Disable Empty Passwords"
+    description: "Prevent login for accounts with empty password fields."
+    command: "grep '^PermitEmptyPasswords' /etc/ssh/sshd_config"
+    expected: "PermitEmptyPasswords no"
+    severity: "CRITICAL"
+    compliance:
+      cis: "5.2.9"
+      nist: "IA-5(1)"
+      pci: "8.2.1"
+
+  - id: "SSH-005"
+    name: "Limit Max Auth Tries"
+    description: "Limit authentication attempts to prevent brute-force (Rec: 4)."
+    command: "grep '^MaxAuthTries' /etc/ssh/sshd_config"
+    expected: "MaxAuthTries 4"
+    severity: "MEDIUM"
+    compliance:
+      cis: "5.2.5"
+      nist: "AC-2"
+
+  - id: "SSH-006"
+    name: "Disable X11 Forwarding"
+    description: "Prevent X11 forwarding to reduce attack surface unless explicitly needed."
+    command: "grep '^X11Forwarding' /etc/ssh/sshd_config"
+    expected: "X11Forwarding no"
+    severity: "LOW"
+    compliance:
+      cis: "5.2.4"
+      nist: "AC-17(2)"
+
+  - id: "SSH-007"
+    name: "Set Client Alive Interval"
+    description: "Ensure idle sessions are terminated (Rec: 300 seconds)."
+    command: "grep '^ClientAliveInterval' /etc/ssh/sshd_config"
+    expected: "ClientAliveInterval 300"
+    severity: "MEDIUM"
+    compliance:
+      cis: "5.2.11"
+      nist: "SC-10"

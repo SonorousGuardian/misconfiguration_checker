@@ -1,0 +1,54 @@
+rules:
+  - id: "SNMP-001"
+    name: "Secure Community String"
+    description: "Ensure the default 'public' community string is not used."
+    # Logic: If 'rocommunity public' is found, echo UNSAFE, else echo SECURE
+    command: "grep -q 'rocommunity public' /etc/snmp/snmpd.conf && echo 'UNSAFE' || echo 'SECURE'"
+    expected: "SECURE"
+    severity: "CRITICAL"
+    compliance:
+      cis: "3.1"
+      nist: "IA-5"
+      iso: "A.9.2.1"
+
+  - id: "SNMP-002"
+    name: "Disable Write Access"
+    description: "SNMP should be Read-Only. Write access (rwcommunity) allows attackers to change configs."
+    command: "grep -q '^rwcommunity' /etc/snmp/snmpd.conf && echo 'ENABLED' || echo 'DISABLED'"
+    expected: "DISABLED"
+    severity: "CRITICAL"
+    compliance:
+      cis: "3.2"
+      nist: "AC-6" # Least Privilege
+
+  - id: "SNMP-003"
+    name: "Enforce SNMP v3"
+    description: "SNMP v1 and v2c send data in cleartext. Use v3 for encryption."
+    # Checks if v3 user is configured or v1/v2 is explicitly disabled
+    command: "grep 'defSecurityLevel' /etc/snmp/snmpd.conf"
+    expected: "authPriv"
+    severity: "HIGH"
+    compliance:
+      cis: "3.3"
+      nist: "SC-8" # Transmission Confidentiality
+      iso: "A.10.1.1"
+
+  - id: "SNMP-004"
+    name: "Restrict Access Control"
+    description: "Ensure SNMP is not accessible by 'default' (0.0.0.0/0)."
+    command: "grep -q 'com2sec .* default' /etc/snmp/snmpd.conf && echo 'OPEN' || echo 'RESTRICTED'"
+    expected: "RESTRICTED"
+    severity: "HIGH"
+    compliance:
+      nist: "AC-4" # Information Flow Enforcement
+      cis: "3.4"
+
+  - id: "SNMP-005"
+    name: "Enable Connection Logging"
+    description: "Log TCP Wrapper connections for auditing."
+    command: "grep 'dontLogTCPWrappersConnects' /etc/snmp/snmpd.conf"
+    expected: "dontLogTCPWrappersConnects no"
+    severity: "MEDIUM"
+    compliance:
+      nist: "AU-2" # Event Logging
+      cis: "3.5"

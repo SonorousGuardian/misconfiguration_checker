@@ -1,0 +1,63 @@
+rules:
+  - id: "SMB-001"
+    name: "Disable Anonymous Access"
+    description: "Shares must require authentication. Anonymous access (guest ok) allows unverified users."
+    command: "grep 'guest ok' /etc/samba/smb.conf"
+    expected: "guest ok = no"
+    severity: "CRITICAL"
+    compliance:
+      cis: "2.3"
+      nist: "AC-3"       # Access Enforcement
+      iso: "A.9.1.2"     # Access to networks
+
+  - id: "SMB-002"
+    name: "Disable Null Passwords"
+    description: "Prevents users from logging in with empty or blank passwords."
+    command: "grep 'null passwords' /etc/samba/smb.conf"
+    expected: "null passwords = no"
+    severity: "CRITICAL"
+    compliance:
+      cis: "2.4"
+      nist: "IA-5(1)"    # Authenticator Management
+      pci: "8.2.3"
+
+  - id: "SMB-003"
+    name: "Disable SMBv1 Protocol"
+    description: "SMBv1 is vulnerable to EternalBlue exploits. Minimum protocol must be SMB2."
+    command: "grep 'server min protocol' /etc/samba/smb.conf"
+    expected: "server min protocol = SMB2"
+    severity: "HIGH"
+    compliance:
+      cis: "2.5"
+      nist: "SI-16"      # Memory Safety / Vulnerable Protocols
+      iso: "A.13.1"
+
+  - id: "SMB-004"
+    name: "Restrict Write Access"
+    description: "Shares should be Read-Only by default to prevent malware spread."
+    command: "grep 'read only' /etc/samba/smb.conf"
+    expected: "read only = yes"
+    severity: "HIGH"
+    compliance:
+      nist: "AC-6"       # Least Privilege
+      cis: "2.6"
+
+  - id: "SMB-005"
+    name: "Enable Auditing/Logging"
+    description: "Log level must be sufficient to track access and errors."
+    command: "grep 'log level' /etc/samba/smb.conf"
+    expected: "log level = 2"
+    severity: "MEDIUM"
+    compliance:
+      nist: "AU-2"       # Event Logging
+      cis: "3.1"
+
+  - id: "SMB-006"
+    name: "Hide Shares from Browsing"
+    description: "Shares should not be publicly browseable to prevent resource enumeration."
+    command: "grep 'browseable' /etc/samba/smb.conf"
+    expected: "browseable = no"
+    severity: "MEDIUM"
+    compliance:
+      nist: "SI-11"      # Information Leakage
+      owasp: "A01:2021"

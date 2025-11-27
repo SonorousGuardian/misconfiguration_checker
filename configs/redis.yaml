@@ -1,0 +1,53 @@
+rules:
+  - id: "REDIS-001"
+    name: "Bind to Localhost"
+    description: "Redis should not bind to 0.0.0.0. It must be restricted to localhost (127.0.0.1)."
+    command: "grep '^bind' /etc/redis/redis.conf"
+    expected: "bind 127.0.0.1"
+    severity: "CRITICAL"
+    compliance:
+      cis: "1.2"
+      nist: "AC-4"       # Information Flow Enforcement
+      iso: "A.13.1.1"    # Network Controls
+
+  - id: "REDIS-002"
+    name: "Require Authentication"
+    description: "A strong password must be set using the 'requirepass' directive."
+    command: "grep '^requirepass' /etc/redis/redis.conf"
+    expected: "requirepass"
+    severity: "CRITICAL"
+    compliance:
+      cis: "2.1"
+      nist: "IA-5"       # Authenticator Management
+      pci: "8.2"
+
+  - id: "REDIS-003"
+    name: "Enable Protected Mode"
+    description: "Protected mode adds a layer of security if no bind/auth is configured."
+    command: "grep '^protected-mode' /etc/redis/redis.conf"
+    expected: "protected-mode yes"
+    severity: "HIGH"
+    compliance:
+      cis: "1.1"
+      nist: "SC-7"       # Boundary Protection
+
+  - id: "REDIS-004"
+    name: "Use Non-Standard Port"
+    description: "Changing the default port (6379) reduces noise from automated scanners."
+    # Logic: If line matches 'port 6379', echo DEFAULT (Fail). If not, echo CUSTOM (Pass).
+    command: "grep -q 'port 6379' /etc/redis/redis.conf && echo 'DEFAULT' || echo 'CUSTOM'"
+    expected: "CUSTOM"
+    severity: "LOW"
+    compliance:
+      nist: "CM-7"       # Least Functionality
+      owasp: "A05:2021"  # Security Misconfiguration
+
+  - id: "REDIS-005"
+    name: "Enable AOF Persistence"
+    description: "Append Only File (AOF) ensures higher data durability than RDB snapshots."
+    command: "grep '^appendonly' /etc/redis/redis.conf"
+    expected: "appendonly yes"
+    severity: "MEDIUM"
+    compliance:
+      nist: "CP-9"       # Information System Backup
+      iso: "A.12.3.1"    # Information Backup

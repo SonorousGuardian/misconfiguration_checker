@@ -1,0 +1,66 @@
+rules:
+  - id: "NGINX-001"
+    name: "Hide Nginx Version"
+    description: "Server tokens should be turned off to prevent attackers from fingerprinting the exact Nginx version."
+    command: "grep 'server_tokens' /etc/nginx/nginx.conf"
+    expected: "server_tokens off"
+    severity: "MEDIUM"
+    compliance:
+      cis: "2.5.1"
+      nist: "SI-11"      # Error Handling
+      owasp: "A06:2021"  # Vulnerable Components
+
+  - id: "NGINX-002"
+    name: "Disable Directory Listing"
+    description: "Autoindex allows attackers to view all files in a directory. It must be disabled."
+    command: "grep 'autoindex' /etc/nginx/nginx.conf"
+    expected: "autoindex off"
+    severity: "HIGH"
+    compliance:
+      cis: "2.5.4"
+      nist: "CM-7"       # Least Functionality
+      owasp: "A01:2021"  # Broken Access Control
+
+  - id: "NGINX-003"
+    name: "Enforce SSL/TLS"
+    description: "Server should listen on port 443 with SSL enabled to encrypt traffic."
+    # Logic: We explicitly look for the ssl directive on port 443
+    command: "grep -r 'listen 443 ssl' /etc/nginx/sites-enabled/"
+    expected: "listen 443 ssl"
+    severity: "CRITICAL"
+    compliance:
+      cis: "2.4"
+      nist: "SC-8"       # Transmission Confidentiality
+      iso: "A.10.1.1"
+
+  - id: "NGINX-004"
+    name: "Enable Rate Limiting"
+    description: "Rate limiting prevents brute-force and DDoS attacks by throttling requests."
+    # Logic: Check if limit_req_zone is defined anywhere in the config
+    command: "grep -q 'limit_req_zone' /etc/nginx/nginx.conf && echo 'CONFIGURED' || echo 'MISSING'"
+    expected: "CONFIGURED"
+    severity: "MEDIUM"
+    compliance:
+      nist: "SC-5"       # Denial of Service Protection
+      owasp: "A04:2021"  # Insecure Design
+
+  - id: "NGINX-005"
+    name: "Prevent Clickjacking"
+    description: "The X-Frame-Options header must be set to SAMEORIGIN or DENY."
+    command: "grep 'X-Frame-Options' /etc/nginx/nginx.conf"
+    expected: "SAMEORIGIN"
+    severity: "MEDIUM"
+    compliance:
+      nist: "SC-8"
+      owasp: "A04:2021"  # Insecure Design
+
+  - id: "NGINX-006"
+    name: "Content Security Policy (CSP)"
+    description: "CSP protects against Cross-Site Scripting (XSS) by restricting resource sources."
+    # Logic: Check if the header is added. If yes, echo FOUND.
+    command: "grep -q 'add_header Content-Security-Policy' /etc/nginx/nginx.conf && echo 'FOUND' || echo 'MISSING'"
+    expected: "FOUND"
+    severity: "MEDIUM"
+    compliance:
+      nist: "SI-7"       # Software, Firmware, and Information Integrity
+      owasp: "A03:2021"  # Injection (XSS)
